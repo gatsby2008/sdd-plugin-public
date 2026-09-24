@@ -11,7 +11,7 @@ unless they opt in.
 ## Install
 
 ```text
-/plugin marketplace add <git-url-of-this-repo>
+/plugin marketplace add https://github.com/gatsby2008/sdd-plugin-public
 /plugin install sdd@gatsby
 ```
 
