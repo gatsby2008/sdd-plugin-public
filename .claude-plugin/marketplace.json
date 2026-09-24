@@ -1,0 +1,12 @@
+{
+  "name": "gatsby",
+  "owner": { "name": "Marcelo Sotero" },
+  "description": "Spec-Driven Development tooling for Claude Code.",
+  "plugins": [
+    {
+      "name": "sdd",
+      "source": "./",
+      "description": "The SDD pipeline (/sdd:start → … → close) plus doc/ADR/spec registry commands and stack-aware reviewer agents."
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+#
+# Project validation script consumed by /sdd:commit and /sdd:mr.
+#
+# Copy this file to <project-root>/commands/check.sh and customize for your
+# stack. The SDD pipeline runs `bash commands/check.sh` and treats:
+#   exit 0  → clean, continue (commit or push)
+#   exit !0 → stop, do not commit/push
+#
+# Goal: match what CI runs, so a green run locally implies a green run in CI.
+# Keep it deterministic — avoid network/randomness/cache reliance.
+#
+# Windows: this script is bash. Run it through Git Bash or WSL2. The Gradle/
+# Maven/npm CLIs all work the same from those shells.
+
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Stack auto-detection. Replace this whole block with the explicit commands
+# your project needs once you know them — explicit is better than clever.
+# ---------------------------------------------------------------------------
+
+if [ -f "./gradlew" ]; then
+  # Gradle. `check` runs unit tests + linters wired into the lifecycle.
+  # Spring Boot projects commonly keep integration tests in a separate
+  # source set — add `integrationTest` to match CI. Add `spotlessCheck` if
+  # the project uses Spotless but doesn't wire it into `check`.
+  ./gradlew --no-daemon clean check
+  # ./gradlew --no-daemon clean check integrationTest spotlessCheck
+
+elif [ -f "./mvnw" ] || [ -f "./pom.xml" ]; then
+  # Maven. `verify` runs unit + integration tests (failsafe).
+  MVN="./mvnw"; [ -x "$MVN" ] || MVN="mvn"
+  "$MVN" -B -e verify
+
+elif [ -f "./pnpm-lock.yaml" ]; then
+  pnpm install --frozen-lockfile
+  pnpm run lint && pnpm test
+
+elif [ -f "./yarn.lock" ]; then
+  yarn install --frozen-lockfile
+  yarn lint && yarn test
+
+elif [ -f "./package-lock.json" ] || [ -f "./package.json" ]; then
+  npm ci
+  npm run lint --if-present && npm test
+
+elif [ -f "./pyproject.toml" ] || [ -f "./setup.py" ] || [ -f "./pytest.ini" ]; then
+  python3 -m pytest
+
+elif [ -f "./Cargo.toml" ]; then
+  cargo test --all
+
+elif [ -f "./go.mod" ]; then
+  go test ./...
+
+else
+  echo "commands/check.sh: no supported stack detected." >&2
+  echo "Edit this script to define the project's validation command." >&2
+  exit 2
+fi

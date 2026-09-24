@@ -1,0 +1,6 @@
+{
+  "name": "sdd",
+  "description": "Spec-Driven Development pipeline for Claude Code — gated /sdd:start → spec → plan → implement → commit → mr → close, plus doc/ADR/spec registry commands and stack-aware quality/security reviewers.",
+  "author": { "name": "Marcelo Sotero" },
+  "keywords": ["spec-driven-development", "sdd", "pipeline", "code-review", "jira"]
+}
